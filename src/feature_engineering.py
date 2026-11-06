@@ -370,7 +370,7 @@ def extract_features(df: pd.DataFrame, is_training: bool = True, prestige_map: D
     X["wonderkid_ceiling_index"] = (23.5 - X["age"]).clip(lower=0) * np.log1p(X["career_minutes"]) * (1.0 + 0.6 * X["is_top_5_league"])
 
     # Bosman Contract Urgency & Free Agent Risk
-    X["contract_urgency_score"] = 1.0 / np.maximum(X["contract_years_left"], 0.25)
+    X["contract_urgency_score"] = 1.0 / np.maximum(X["contract_years_left"], 0.20)
     X["free_agent_risk"] = X["is_contract_expiring"] * np.log1p(X["recent_minutes"])
 
     # Physical Durability & Disciplinary Squad Load
