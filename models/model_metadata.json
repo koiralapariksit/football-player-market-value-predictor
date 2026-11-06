@@ -1,16 +1,18 @@
 {
-  "edition": "November 6, 2026 FIFA Official Calibrated",
-  "reference_date": "2026-11-06",
-  "dataset_records": 26182,
-  "test_records": 5237,
-  "metrics": {
-    "log_r2": 0.7691940975128186,
-    "raw_r2": 0.8226851933575028,
-    "raw_mae_eur": 964700.6433623009,
-    "raw_medae_eur": 180465.64462417382,
-    "mdape_percent": 40.858395139635014,
-    "within_20_pct": 24.842467061294634,
-    "within_50_pct": 59.19419514989498
+  "release": "v2.0.0-fifa-official-2026",
+  "calibration_date": "2026-11-06",
+  "season": "2026/2027",
+  "benchmark_metrics": {
+    "raw_r2": 0.8296156594242179,
+    "log_r2": 0.7716919610586778,
+    "mae": 942606.1212089404,
+    "mdape": 40.41441855785271
   },
-  "features_count": 62
+  "super_ensemble": {
+    "lightgbm_weight": 0.42,
+    "xgboost_weight": 0.38,
+    "hist_gbm_weight": 0.2
+  },
+  "features_total": 70,
+  "indexed_players": 26182
 }
