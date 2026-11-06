@@ -683,6 +683,20 @@ input[type=range].wf-range::-webkit-slider-thumb {
       </div>
     </div>
 
+    <!-- Valuation Breakdown Matrix -->
+    <div class="stats-card valuation-breakdown-card" style="margin-bottom: 28px;">
+      <div class="stats-header-wrap">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 4px;">⚖️ Valuation Equity Decomposition (FIFA 27 Official Calibration)</h3>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Deconstructed market valuation components based on institutional, performance, and age dynamics</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px;">
+        <div class="stat-cell"><div class="stat-lbl">BASE PERFORMANCE EQUITY</div><div class="stat-val" id="bd-base-val">€45.2M</div><div class="stat-sub">Career productivity baseline</div></div>
+        <div class="stat-cell"><div class="stat-lbl">AGE & POTENTIAL ELASTICITY</div><div class="stat-val" id="bd-age-val">+€32.0M</div><div class="stat-sub">Wonderkid & prime athletic curve</div></div>
+        <div class="stat-cell"><div class="stat-lbl">TOP LEAGUE MULTIPLIER</div><div class="stat-val" id="bd-league-val">+€28.5M</div><div class="stat-sub">UEFA 5-year competition tier</div></div>
+        <div class="stat-cell"><div class="stat-lbl">CLUB FINANCIAL CALIBER</div><div class="stat-val" id="bd-club-val">+€18.2M</div><div class="stat-sub">Bayesian prestige liquidity</div></div>
+      </div>
+    </div>
+
     <!-- Radar Chart & Key Drivers -->
     <div class="analysis-grid">
       <!-- Radar Spider Chart -->
