@@ -155,6 +155,7 @@ class FootballMarketValuePredictor:
             drivers.append("Expiring Contract Leverage Discount (<1 year left)")
 
         result["valuation_drivers"] = drivers
+        result["driver_attributions"] = [{"factor": d, "impact": "High" if idx < 2 else "Moderate"} for idx, d in enumerate(drivers[:4])]
         return result
 
     def search_and_predict(self, query_name: str, dataset_path: str = DEFAULT_DATA_PATH) -> Optional[Dict[str, Any]]:
