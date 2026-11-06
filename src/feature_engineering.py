@@ -375,7 +375,7 @@ def extract_features(df: pd.DataFrame, is_training: bool = True, prestige_map: D
 
     # Physical Durability & Disciplinary Squad Load
     X["durability_factor"] = (X["recent_minutes"] / np.maximum(X["recent_appearances"] * 90.0, 1.0)).clip(upper=1.0)
-    X["cards_discipline_factor"] = (X["career_cards_per_90"]).clip(upper=1.5)
+    X["cards_discipline_factor"] = (X["career_cards_per_90"]).clip(upper=1.4)
 
     # Position Mastery & Dominance
     X["striker_clinical_ratio"] = is_str * (X["recent_goals"] / np.maximum(X["recent_appearances"], 1.0))
