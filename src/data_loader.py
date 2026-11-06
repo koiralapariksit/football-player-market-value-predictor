@@ -1,16 +1,18 @@
 """
 Data Loader & Ingestion Pipeline for Football Player Market Value Modeling.
+Calibrated for the 2026/2027 Season as of November 6, 2026.
 Downloads, caches, and joins Transfermarkt players, match appearances,
-clubs, and competition tiers.
+clubs, and competition tiers with exact temporal alignment.
 """
 
 import os
 import gzip
-import io
 import time
 import requests
 import pandas as pd
 import numpy as np
+
+CURRENT_DATE = pd.Timestamp("2026-11-06")
 
 BASE_URL = "https://pub-e682421888d945d684bcae8890b0ec20.r2.dev/data"
 DEFAULT_RAW_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "raw")
@@ -68,9 +70,10 @@ def load_raw_tables(raw_dir: str = DEFAULT_RAW_DIR):
 
 def aggregate_appearances(appearances_path: str) -> pd.DataFrame:
     """
-    Read appearances.csv.gz and aggregate player career, recent, and continental statistics.
+    Read appearances.csv.gz and aggregate player career, recent (2024-2026),
+    and continental statistics calibrated to November 6, 2026.
     """
-    print("[ETL] Reading and aggregating match appearances...")
+    print("[ETL] Reading and aggregating match appearances up to 2026...")
     t0 = time.time()
 
     cols = [
@@ -98,9 +101,9 @@ def aggregate_appearances(appearances_path: str) -> pd.DataFrame:
         last_match_year=("year", "max")
     ).reset_index()
 
-    # 2. Recent form (matches in last 2-3 years: >= 2023)
-    recent_mask = df_app["year"] >= 2023
-    recent_agg = df_app[recent_mask].groupby("player_id").agg(
+    # 2. Modern Form (matches in active 2024-2026 cycle: date >= 2024-01-01)
+    modern_mask = df_app["date"] >= "2024-01-01"
+    recent_agg = df_app[modern_mask].groupby("player_id").agg(
         recent_appearances=("minutes_played", "count"),
         recent_minutes=("minutes_played", "sum"),
         recent_goals=("goals", "sum"),
@@ -109,7 +112,18 @@ def aggregate_appearances(appearances_path: str) -> pd.DataFrame:
         recent_red_cards=("red_cards", "sum")
     ).reset_index()
 
+    # 3. Latest Season Form (matches in 2025-2026 cycle)
+    latest_mask = df_app["date"] >= "2025-01-01"
+    latest_agg = df_app[latest_mask].groupby("player_id").agg(
+        latest_appearances=("minutes_played", "count"),
+        latest_minutes=("minutes_played", "sum"),
+        latest_goals=("goals", "sum"),
+        latest_assists=("assists", "sum")
+    ).reset_index()
+
     stats_merged = pd.merge(career_agg, recent_agg, on="player_id", how="left").fillna(0)
+    stats_merged = pd.merge(stats_merged, latest_agg, on="player_id", how="left").fillna(0)
+
     print(f"[ETL] Appearance aggregation complete ({len(stats_merged)} players processed in {time.time()-t0:.2f}s)")
     return stats_merged
 
@@ -120,7 +134,7 @@ def build_football_dataset(
     min_last_season: int = 2021
 ) -> pd.DataFrame:
     """
-    Download, process, join, and save the curated football dataset.
+    Download, process, join, and save the curated football dataset calibrated to November 6, 2026.
     """
     os.makedirs(processed_dir, exist_ok=True)
     processed_file = os.path.join(processed_dir, "football_players_market_value.csv.gz")
@@ -139,7 +153,18 @@ def build_football_dataset(
         (df_players["last_season"] >= min_last_season)
     )
     df_players = df_players[valid_mask].copy()
-    print(f"[ETL] Filtered to {len(df_players)} active players with market valuations.")
+
+    # Exact age as of November 6, 2026
+    dob = pd.to_datetime(df_players["date_of_birth"], errors="coerce")
+    exact_age = (CURRENT_DATE - dob).dt.days / 365.25
+    df_players["age_nov_2026"] = exact_age.fillna(25.0).clip(lower=16.0, upper=46.0)
+
+    # Exact contract remaining as of November 6, 2026
+    contract_exp = pd.to_datetime(df_players["contract_expiration_date"], errors="coerce")
+    contract_years = (contract_exp - CURRENT_DATE).dt.days / 365.25
+    df_players["contract_years_nov_2026"] = contract_years.fillna(1.5).clip(lower=0.0, upper=8.0)
+
+    print(f"[ETL] Filtered to {len(df_players)} active players with 2026 temporal calibrations.")
 
     # 2. Aggregate appearances
     df_stats = aggregate_appearances(paths["appearances"])
@@ -151,21 +176,21 @@ def build_football_dataset(
             "club_id", "squad_size", "average_age",
             "foreigners_percentage", "national_team_players"
         ])
-    df_clubs.rename(columns={
+    df_clubs = df_clubs.rename(columns={
         "squad_size": "club_squad_size",
         "average_age": "club_avg_age",
         "foreigners_percentage": "club_foreigners_pct",
         "national_team_players": "club_national_players"
-    }, inplace=True)
+    })
 
     # 4. Load competitions
     with gzip.open(paths["competitions"], "rt", encoding="utf-8") as f:
         df_comp = pd.read_csv(f, usecols=["competition_id", "name", "country_name", "sub_type"])
-    df_comp.rename(columns={
+    df_comp = df_comp.rename(columns={
         "name": "competition_name",
         "country_name": "competition_country",
         "sub_type": "competition_tier_type"
-    }, inplace=True)
+    })
 
     # Merge players with match stats
     merged = pd.merge(df_players, df_stats, on="player_id", how="left")
@@ -173,7 +198,8 @@ def build_football_dataset(
         "career_appearances", "career_minutes", "career_goals", "career_assists",
         "career_yellow_cards", "career_red_cards", "continental_appearances",
         "recent_appearances", "recent_minutes", "recent_goals", "recent_assists",
-        "recent_yellow_cards", "recent_red_cards"
+        "recent_yellow_cards", "recent_red_cards",
+        "latest_appearances", "latest_minutes", "latest_goals", "latest_assists"
     ]
     for col in stat_fill_zeros:
         if col in merged.columns:
@@ -191,9 +217,9 @@ def build_football_dataset(
     )
 
     # Save to compressed CSV
-    print(f"[ETL] Saving processed dataset ({len(merged)} records) to {processed_file}...")
+    print(f"[ETL] Saving 2026-calibrated dataset ({len(merged)} records) to {processed_file}...")
     merged.to_csv(processed_file, index=False, compression="gzip")
-    print(f"[ETL] Processed dataset successfully created!")
+    print(f"[ETL] 2026 Football dataset successfully created!")
 
     return merged
 
@@ -201,5 +227,5 @@ def build_football_dataset(
 if __name__ == "__main__":
     df = build_football_dataset()
     print("Dataset shape:", df.shape)
-    print("Columns:", df.columns.tolist()[:15])
-
+    print("November 6, 2026 Age Sample:")
+    print(df[["name", "age_nov_2026", "contract_years_nov_2026"]].head(5))

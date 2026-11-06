@@ -20,6 +20,8 @@ TIER_2_COMPETITIONS = {"PO1", "NL1", "BE1", "TR1", "GB2", "RU1", "BRA1", "ARG1"}
 TOP_NATIONS = {"Brazil", "France", "England", "Spain", "Argentina", "Germany", "Portugal", "Netherlands", "Italy", "Belgium"}
 ELITE_AGENTS = {"THE·TEAM", "CAA Stellar", "ProStar", "CAA Base Ltd", "Unique Sports Group", "SEG", "AS1", "Wasserman", "ROOF", "Gestifute", "Gersh"}
 
+CALIBRATION_DATE = pd.Timestamp("2026-11-06")
+CALIBRATION_YEAR = 2026
 PRESTIGE_MAP_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "models", "club_prestige_map.json")
 
 NUMERIC_FEATURES = [
@@ -162,28 +164,29 @@ def extract_features(df: pd.DataFrame, is_training: bool = True, prestige_map: D
                 return s
         return pd.Series(default_val, index=df.index)
 
-    # 1. Age & Career Trajectory
-    ref_year = _col("last_season", 2025).fillna(2025)
-    if "date_of_birth" in df.columns and df["date_of_birth"].notnull().any():
+    # 1. Age & Career Trajectory (Calibrated to November 6, 2026)
+    ref_year = _col("last_season", CALIBRATION_YEAR).fillna(CALIBRATION_YEAR)
+    if "age_nov_2026" in df.columns and df["age_nov_2026"].notnull().any():
+        age = _col("age_nov_2026", 25.0).fillna(25.0)
+    elif "date_of_birth" in df.columns and df["date_of_birth"].notnull().any():
         dob = pd.to_datetime(df["date_of_birth"], errors="coerce")
-        birth_year = dob.dt.year.fillna(ref_year - 25)
-        age = ref_year - birth_year
+        age = ((CALIBRATION_DATE - dob).dt.days / 365.25).fillna(25.0)
     elif "age" in df.columns:
         age = _col("age", 25.0).fillna(25.0)
     else:
         age = pd.Series(25.0, index=df.index)
 
-    age = age.clip(lower=15, upper=45)
+    age = age.clip(lower=15.0, upper=46.0)
     X["age"] = age
     X["age_squared"] = (age ** 2) / 100.0  # scaled
     X["peak_age_diff"] = (age - 26.5).abs()
-    X["is_young_talent"] = (age <= 21).astype(float)
-    X["is_prime_age"] = ((age >= 23) & (age <= 28)).astype(float)
-    X["is_veteran"] = (age >= 32).astype(float)
+    X["is_young_talent"] = (age <= 21.5).astype(float)
+    X["is_prime_age"] = ((age >= 23.0) & (age <= 28.5)).astype(float)
+    X["is_veteran"] = (age >= 32.0).astype(float)
 
     # Experience span
     first_yr = _col("first_match_year", ref_year).fillna(ref_year)
-    last_yr = _col("last_match_year", ref_year).fillna(ref_year)
+    last_yr = _col("last_match_year", CALIBRATION_YEAR).fillna(CALIBRATION_YEAR)
     exp = (last_yr - first_yr + 1).fillna(1.0).clip(lower=0, upper=25)
     X["experience_years"] = exp.astype(float)
 
@@ -194,16 +197,19 @@ def extract_features(df: pd.DataFrame, is_training: bool = True, prestige_map: D
     foot = _col("foot", "right").astype(str).str.lower()
     X["is_left_footed"] = foot.isin(["left", "both"]).astype(float)
 
-    # 3. Contract Status
-    if "contract_years_left" in df.columns:
-        diff_years = _col("contract_years_left", 2.0).fillna(2.0).clip(lower=0.0, upper=7.0)
+    # 3. Contract Status (Anchored to November 6, 2026)
+    if "contract_years_nov_2026" in df.columns and df["contract_years_nov_2026"].notnull().any():
+        diff_years = _col("contract_years_nov_2026", 2.0).fillna(2.0).clip(lower=0.0, upper=8.0)
+        X["contract_years_left"] = diff_years
+        X["is_contract_expiring"] = (diff_years <= 1.0).astype(float)
+    elif "contract_years_left" in df.columns:
+        diff_years = _col("contract_years_left", 2.0).fillna(2.0).clip(lower=0.0, upper=8.0)
         X["contract_years_left"] = diff_years
         X["is_contract_expiring"] = (diff_years <= 1.0).astype(float)
     elif "contract_expiration_date" in df.columns:
         exp_date = pd.to_datetime(df["contract_expiration_date"], errors="coerce")
-        ref_date = pd.to_datetime(ref_year.astype(str) + "-06-30")
-        diff_years = (exp_date - ref_date).dt.days / 365.25
-        diff_years = diff_years.fillna(1.5).clip(lower=0.0, upper=7.0)
+        diff_years = (exp_date - CALIBRATION_DATE).dt.days / 365.25
+        diff_years = diff_years.fillna(1.5).clip(lower=0.0, upper=8.0)
         X["contract_years_left"] = diff_years
         X["is_contract_expiring"] = (diff_years <= 1.0).astype(float)
     else:

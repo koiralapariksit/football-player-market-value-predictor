@@ -27,13 +27,12 @@ def _normalize(text: str) -> str:
     return _strip_accents(text).lower()
 
 
-def _compute_age(dob: Optional[str], last_season: Optional[int]) -> Optional[int]:
-    """
-    Approximate age at end of *last_season*.
+CALIBRATION_DATE = date(2026, 11, 6)
 
-    Uses June 30 of ``last_season`` as the reference date (typical end of a
-    European football season).  Falls back to today's date when
-    *last_season* is missing.
+
+def _compute_age(dob: Optional[str], last_season: Optional[int] = None) -> Optional[int]:
+    """
+    Exact age calibrated to November 6, 2026.
     """
     if not dob or pd.isna(dob):
         return None
@@ -42,11 +41,7 @@ def _compute_age(dob: Optional[str], last_season: Optional[int]) -> Optional[int
     except Exception:
         return None
 
-    if last_season and not pd.isna(last_season):
-        ref = date(int(last_season), 6, 30)
-    else:
-        ref = date.today()
-
+    ref = CALIBRATION_DATE
     age = ref.year - birth.year - ((ref.month, ref.day) < (birth.month, birth.day))
     return int(age) if age >= 0 else None
 
@@ -98,11 +93,14 @@ class PlayerSearchIndex:
         """Read the CSV, compute derived fields, and build look-up structures."""
         df = pd.read_csv(data_path)
 
-        # Compute age from date_of_birth and last_season
-        df["age"] = df.apply(
-            lambda r: _compute_age(r.get("date_of_birth"), r.get("last_season")),
-            axis=1,
-        )
+        # Compute exact age calibrated to November 6, 2026
+        if "age_nov_2026" in df.columns:
+            df["age"] = df["age_nov_2026"].round().astype(int)
+        else:
+            df["age"] = df.apply(
+                lambda r: _compute_age(r.get("date_of_birth")),
+                axis=1,
+            )
 
         # Coerce market_value to float (NaN-safe) for sorting
         df["market_value_in_eur"] = pd.to_numeric(
