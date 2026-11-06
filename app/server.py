@@ -65,6 +65,17 @@ app = Flask(
 )
 
 
+
+def get_tactical_playstyle(pos: str, sub_pos: str, g90: float, a90: float) -> str:
+    """Assigns EA FC 27 playstyle plus badge based on position and efficiency."""
+    if "Winger" in sub_pos: return "⚡ Rapid Winger+"
+    if "Forward" in sub_pos or "Striker" in sub_pos:
+        return "🎯 Finesse Shot+" if g90 > 0.4 else "💥 Power Header+"
+    if "Midfield" in pos:
+        return "🧠 Incisive Pass+" if a90 > 0.25 else "🛡️ Intercept+"
+    if "Back" in sub_pos: return "🧱 Bruiser+"
+    return "🧤 Quick Reflexes+"
+
 @app.route("/")
 def index():
     """Serve the main web UI."""
@@ -150,6 +161,7 @@ def api_predict():
             result["data_source"] = "Live Web + Dataset Stats"
         else:
             result["data_source"] = "Transfermarkt Dataset (Cached)"
+        result["tactical_playstyle"] = get_tactical_playstyle(player_data.get("position", ""), player_data.get("sub_position", ""), float(result.get("player_stats", {}).get("recent_goals", 0))/max(float(result.get("player_stats", {}).get("recent_appearances", 1) or 1), 1.0), 0.2)
 
         # Add full player stats for the UI
         result["player_stats"] = {
