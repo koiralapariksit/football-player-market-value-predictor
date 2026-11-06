@@ -20,6 +20,12 @@ TIER_2_COMPETITIONS = {"PO1", "NL1", "BE1", "TR1", "GB2", "RU1", "BRA1", "ARG1"}
 TOP_NATIONS = {"Brazil", "France", "England", "Spain", "Argentina", "Germany", "Portugal", "Netherlands", "Italy", "Belgium"}
 ELITE_AGENTS = {"THE·TEAM", "CAA Stellar", "ProStar", "CAA Base Ltd", "Unique Sports Group", "SEG", "AS1", "Wasserman", "ROOF", "Gestifute", "Gersh"}
 
+UEFA_LEAGUE_COEFFICIENTS = {
+    "GB1": 100.0, "ES1": 88.5, "IT1": 85.0, "L1": 84.0, "FR1": 68.0,
+    "NL1": 60.5, "PO1": 56.0, "BE1": 48.0, "TR1": 42.0, "RU1": 35.0,
+    "BRA1": 52.0, "ARG1": 46.0, "GB2": 45.0
+}
+
 CALIBRATION_DATE = pd.Timestamp("2026-11-06")
 CALIBRATION_YEAR = 2026
 PRESTIGE_MAP_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "models", "club_prestige_map.json")
@@ -92,7 +98,16 @@ NUMERIC_FEATURES = [
     "striker_goals_per_90",
     "winger_ga_per_90",
     "mid_assists_per_90",
-    "cb_minutes"
+    "cb_minutes",
+    "uefa_league_coef",
+    "wonderkid_ceiling_index",
+    "contract_urgency_score",
+    "free_agent_risk",
+    "durability_factor",
+    "cards_discipline_factor",
+    "striker_clinical_ratio",
+    "midfield_progression_index",
+    "cb_clean_sheet_leverage"
 ]
 
 CATEGORICAL_FEATURES = [
@@ -283,6 +298,7 @@ def extract_features(df: pd.DataFrame, is_training: bool = True, prestige_map: D
     tier[is_tier2 == 1.0] = 2.0
     tier[comp_id == ""] = 4.0
     X["competition_tier_level"] = tier
+    X["uefa_league_coef"] = comp_id.map(UEFA_LEAGUE_COEFFICIENTS).fillna(25.0).astype(float)
 
     # Club metrics
     X["club_squad_size"] = _col("club_squad_size", 26.0).fillna(26.0).astype(float)
@@ -350,6 +366,22 @@ def extract_features(df: pd.DataFrame, is_training: bool = True, prestige_map: D
     X["mid_assists_per_90"] = is_md * X["recent_assists_per_90"]
     X["cb_minutes"] = is_c_b * X["log_recent_minutes"]
 
+    # Wonderkid Ceiling Index & Elasticity
+    X["wonderkid_ceiling_index"] = (23.0 - X["age"]).clip(lower=0) * np.log1p(X["career_minutes"]) * (1.0 + 0.5 * X["is_top_5_league"])
+
+    # Bosman Contract Urgency & Free Agent Risk
+    X["contract_urgency_score"] = 1.0 / np.maximum(X["contract_years_left"], 0.25)
+    X["free_agent_risk"] = X["is_contract_expiring"] * np.log1p(X["recent_minutes"])
+
+    # Physical Durability & Disciplinary Squad Load
+    X["durability_factor"] = (X["recent_minutes"] / np.maximum(X["recent_appearances"] * 90.0, 1.0)).clip(upper=1.0)
+    X["cards_discipline_factor"] = (X["career_cards_per_90"]).clip(upper=1.5)
+
+    # Position Mastery & Dominance
+    X["striker_clinical_ratio"] = is_str * (X["recent_goals"] / np.maximum(X["recent_appearances"], 1.0))
+    X["midfield_progression_index"] = is_md * (X["recent_assists_per_90"] + 0.5 * (X["recent_minutes"] / 90.0))
+    X["cb_clean_sheet_leverage"] = is_c_b * (X["recent_minutes"] / 90.0) * X["is_top_5_league"]
+
     # Ensure all numeric columns are clean float without NaN
     for col in NUMERIC_FEATURES:
         if col in X.columns:
@@ -370,3 +402,7 @@ def prepare_training_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, np.ndarray, n
     prestige_map = build_and_save_club_prestige_map(valid)
     X = extract_features(valid, is_training=True, prestige_map=prestige_map)
     return X, y_log, y_raw
+
+# UEFA 5-Year Country Coefficients (Active 2026/27)
+
+# UEFA 5-Year Country Coefficients (Active 2026/27)
