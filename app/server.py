@@ -24,6 +24,7 @@ from flask import Flask, render_template, request, jsonify
 _search_index = None
 _predictor = None
 _scraper = None
+_prediction_lru_cache = {}
 
 
 def get_search_index():
@@ -136,6 +137,8 @@ def api_predict():
             pass  # Scraping is optional enrichment
 
         # Run prediction with dataset stats
+        if int(player_id) in _prediction_lru_cache:
+            return jsonify(_prediction_lru_cache[int(player_id)])
         result = predictor.predict_player_profile(player_data)
         from src.predict import compute_fifa_ovr
         result["fifa_ovr"] = compute_fifa_ovr(result["predicted_market_value_eur"], float(player_data.get("age", 25) or 25), bool(player_data.get("current_club_domestic_competition_id") in ["GB1", "ES1", "IT1", "L1", "FR1"]))
@@ -189,6 +192,7 @@ def api_predict():
             "contract_expiration_date": str(player_data.get("contract_expiration_date", "")),
         }
 
+        _prediction_lru_cache[int(player_id)] = result
         return jsonify(result)
 
     elif custom_stats is not None:
