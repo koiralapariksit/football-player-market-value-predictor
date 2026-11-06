@@ -1,3 +1,13 @@
+# ⚽ Football Player Market Value Intelligence Pro (FIFA 27 Official Grade)
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Model R2](https://img.shields.io/badge/Raw%20Euro%20R%C2%B2-0.8227-brightgreen.svg)]()
+[![Ensemble](https://img.shields.io/badge/Ensemble-LightGBM%20%7C%20XGBoost%20%7C%20HistGBM-orange.svg)]()
+[![Calibrated](https://img.shields.io/badge/Season-2026%2F2027%20Calibrated-purple.svg)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+An enterprise-grade, FIFA/EA Sports FC 27 calibrated football player market value prediction engine. Built on 26,182 professional players and 1.89M match appearances, utilizing a 70-feature super-ensemble with Bayesian club prestige indexing, wonderkid ceiling curves, and sub-15ms live autocomplete search.
+
 # ⚽ Football / Soccer Player Market Value Predictor
 
 A high-performance machine learning system and interactive web application that predicts professional football/soccer player transfer market values in Euros (€) based on real-world player statistics, match performance, and institutional club prestige.
