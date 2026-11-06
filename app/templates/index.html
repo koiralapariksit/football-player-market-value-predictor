@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Football Player Market Value Intelligence Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --bg-deep: #060913;
+  --bg-card: rgba(13, 19, 36, 0.82);
+  --bg-card-hover: rgba(18, 26, 48, 0.95);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(0, 240, 144, 0.5);
+  --emerald: #00f090;
+  --emerald-glow: rgba(0, 240, 144, 0.28);
+  --cyber-blue: #38bdf8;
+  --cyber-purple: #a855f7;
+  --gold: #fbbf24;
+  --coral: #f43f5e;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(0, 240, 144, 0.07) 0%, transparent 45%),
+    radial-gradient(circle at 85% 25%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 85%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Stadium Pitch Grid Overlay */
+.pitch-overlay {
+  position: fixed; inset: 0; z-index: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* Header */
+.header-wrapper {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(0, 240, 144, 0.12);
+  color: var(--emerald);
+  border: 1px solid rgba(0, 240, 144, 0.3);
+  box-shadow: 0 0 20px var(--emerald-glow);
+  margin-bottom: 14px;
+}
+.brand-pill .pulse-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 10px var(--emerald);
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+
+h1.hero-title {
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  background: linear-gradient(135deg, #ffffff 20%, #e2e8f0 55%, var(--emerald) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+p.hero-desc {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 660px;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+
+/* Search Bar Area */
+.search-container {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto 40px;
+}
+.search-glass {
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid var(--border-glass);
+  border-radius: 20px;
+  padding: 6px 12px 6px 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.search-glass:focus-within {
+  border-color: var(--emerald);
+  box-shadow: 0 0 0 4px var(--emerald-glow), 0 24px 60px rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
+}
+.search-glass svg {
+  color: var(--text-dim);
+  width: 24px; height: 24px;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.search-glass:focus-within svg { color: var(--emerald); }
+
+#search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.15rem;
+  font-weight: 500;
+  padding: 14px 16px;
+}
+#search-input::placeholder { color: var(--text-dim); }
+
+.search-shortcut {
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  color: var(--text-dim);
+  user-select: none;
+}
+
+/* Autocomplete Dropdown */
+.autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0; right: 0;
+  background: rgba(13, 19, 36, 0.96);
+  backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.75), 0 0 30px rgba(0, 240, 144, 0.08);
+  overflow: hidden;
+  z-index: 1000;
+  display: none;
+  max-height: 440px;
+  overflow-y: auto;
+}
+.autocomplete-dropdown.open { display: block; animation: dropIn 0.22s ease-out; }
+@keyframes dropIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.dd-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.15s ease;
+}
+.dd-row:hover, .dd-row.active {
+  background: rgba(0, 240, 144, 0.08);
+  padding-left: 22px;
+}
+.dd-row:last-child { border-bottom: none; }
+
+.dd-thumb {
+  width: 44px; height: 44px; border-radius: 50%;
+  object-fit: cover;
+  background: #1e293b;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+.dd-initials {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1.5px solid rgba(0, 240, 144, 0.3);
+  color: var(--emerald);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.95rem;
+  flex-shrink: 0;
+}
+.dd-info { flex: 1; min-width: 0; }
+.dd-name {
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dd-name .hl { color: var(--emerald); font-weight: 800; }
+.dd-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.dd-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--emerald);
+  flex-shrink: 0;
+}
+
+/* Loading State */
+.loading-box {
+  display: none;
+  text-align: center;
+  padding: 80px 20px;
+}
+.loading-box.visible { display: block; }
+.loader-ring {
+  width: 52px; height: 52px;
+  border: 3px solid rgba(0, 240, 144, 0.15);
+  border-top-color: var(--emerald);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 18px;
+  box-shadow: 0 0 20px var(--emerald-glow);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Main Profile Dashboard (Visible after selection) */
+#player-view { display: none; }
+#player-view.visible { display: block; animation: profileFade 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes profileFade { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Player Hero Showcase Banner */
+.player-banner {
+  background: linear-gradient(135deg, rgba(20, 30, 55, 0.85) 0%, rgba(10, 16, 32, 0.95) 100%);
+  backdrop-filter: blur(24px);
+  border: 1.5px solid var(--border-glass);
+  border-radius: 24px;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.player-banner::after {
+  content: "";
+  position: absolute; right: -80px; top: -80px; width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(0, 240, 144, 0.15), transparent 70%);
+  pointer-events: none;
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 110px; height: 110px;
+  flex-shrink: 0;
+}
+.player-avatar-img {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--emerald);
+  box-shadow: 0 0 25px var(--emerald-glow);
+  background: #0f172a;
+}
+.player-avatar-fallback {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 3px solid var(--emerald);
+  box-shadow: 0 0 25px var(--emerald-glow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem; font-weight: 800; color: var(--emerald);
+}
+.pos-badge-floating {
+  position: absolute;
+  bottom: -4px; right: -4px;
+  background: #0f172a;
+  border: 1.5px solid var(--emerald);
+  color: var(--emerald);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.player-details { flex: 1; }
+.player-fullname {
+  font-size: 2.1rem;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  margin-bottom: 6px;
+  color: #fff;
+}
+.player-subline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.player-subline span { display: flex; align-items: center; gap: 6px; }
+
+.pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-emerald { background: rgba(0, 240, 144, 0.12); color: var(--emerald); border: 1px solid rgba(0, 240, 144, 0.3); }
+.badge-blue { background: rgba(56, 189, 248, 0.12); color: var(--cyber-blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+.badge-purple { background: rgba(168, 85, 247, 0.12); color: var(--cyber-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+
+/* Valuation Cards Grid */
+.valuation-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+@media (max-width: 900px) { .valuation-grid { grid-template-columns: 1fr; } }
+
+.val-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: 20px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.val-card-hero {
+  border: 1.5px solid rgba(0, 240, 144, 0.3);
+  box-shadow: 0 0 40px rgba(0, 240, 144, 0.08);
+}
+.val-card-hero::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--emerald), var(--cyber-blue));
+}
+
+.val-header-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.val-hero-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 3.4rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--emerald);
+  text-shadow: 0 0 30px var(--emerald-glow);
+  margin-bottom: 4px;
+}
+.val-range-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.val-range-text strong { color: #f8fafc; font-family: 'JetBrains Mono', monospace; }
+
+.sentiment-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+.sentiment-label { font-size: 0.82rem; color: var(--text-muted); }
+.sentiment-badge { font-weight: 700; font-size: 0.85rem; }
+
+/* Radar & Drivers Layout */
+.analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+@media (max-width: 900px) { .analysis-grid { grid-template-columns: 1fr; } }
+
+.chart-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: 20px;
+  padding: 24px;
+}
+.chart-card h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.chart-subtitle { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px; }
+
+.radar-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+/* Drivers List */
+.driver-pill-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.driver-pill-list li {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border-left: 3px solid var(--emerald);
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Stats Matrix */
+.stats-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 28px;
+}
+.stats-header-wrap { margin-bottom: 18px; }
+.stats-grid-inner {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.stat-box {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-glass);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.stat-box:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 240, 144, 0.3);
+}
+.stat-box-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.stat-box-lbl {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+/* What-If Sandbox */
+.whatif-card {
+  background: linear-gradient(135deg, rgba(13, 20, 38, 0.92), rgba(18, 28, 52, 0.95));
+  backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  margin-bottom: 40px;
+}
+.whatif-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin: 24px 0;
+}
+.wf-slider-item {}
+.wf-slider-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.wf-val-tag {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cyber-blue);
+  font-weight: 700;
+}
+input[type=range].wf-range {
+  width: 100%; height: 6px;
+  background: #1e293b;
+  border-radius: 6px;
+  outline: none;
+  -webkit-appearance: none;
+}
+input[type=range].wf-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--cyber-blue);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+.wf-select-custom {
+  width: 100%;
+  background: #0f172a;
+  border: 1px solid var(--border-glass);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.whatif-output-banner {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.wf-out-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--cyber-blue);
+}
+.delta-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-left: 12px;
+}
+.delta-up { background: rgba(0, 240, 144, 0.15); color: var(--emerald); border: 1px solid rgba(0, 240, 144, 0.3); }
+.delta-down { background: rgba(244, 63, 94, 0.15); color: var(--coral); border: 1px solid rgba(244, 63, 94, 0.3); }
+
+/* Recalculate Button */
+.btn-recalc {
+  background: linear-gradient(135deg, var(--cyber-blue), #2563eb);
+  color: #fff;
+  border: none;
+  padding: 12px 26px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+  transition: all 0.2s ease;
+}
+.btn-recalc:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.55);
+}
+</style>
+</head>
+<body>
+
+<div class="pitch-overlay"></div>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header-wrapper">
+    <div class="brand-pill">
+      <span class="pulse-dot"></span>
+      Super-Ensemble • LightGBM + XGBoost + HistGBM
+    </div>
+    <h1 class="hero-title">⚽ Football Player Market Value Intelligence</h1>
+    <p class="hero-desc">Trained on 26,182 professional players & 1.89M match records with Bayesian club prestige indexing, wonderkid curves, and real-time live web scraping.</p>
+  </div>
+
+  <!-- Search Area -->
+  <div class="search-container">
+    <div class="search-glass" id="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" placeholder="Search any player... e.g. Messi, Haaland, Mbappé, Saka, Bellingham" autocomplete="off" spellcheck="false">
+      <span class="search-shortcut">ESC to close</span>
+    </div>
+    <div class="autocomplete-dropdown" id="dropdown"></div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div class="loading-box" id="loading-box">
+    <div class="loader-ring"></div>
+    <div style="font-size: 1.15rem; font-weight: 700;">Fetching live web stats & running Super-Ensemble...</div>
+    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Querying Transfermarkt profile & club financial prestige</div>
+  </div>
+
+  <!-- Main Player Showcase -->
+  <div id="player-view">
+
+    <!-- Player Banner -->
+    <div class="player-banner">
+      <div class="avatar-wrapper">
+        <img class="player-avatar-img" id="player-img" src="" alt="Player Face" onerror="handleImgError(this)">
+        <div class="player-avatar-fallback" id="player-fallback" style="display:none;"></div>
+        <div class="pos-badge-floating" id="pos-floating">CF</div>
+      </div>
+
+      <div class="player-details">
+        <h2 class="player-fullname" id="hero-name">Erling Haaland</h2>
+        <div class="player-subline">
+          <span id="hero-club">🏟 Manchester City</span>
+          <span id="hero-pos">⚽ Centre-Forward</span>
+          <span id="hero-age">📅 Age 25</span>
+          <span id="hero-nat">🌍 Norway</span>
+        </div>
+        <div class="pill-group">
+          <span class="badge-pill badge-emerald" id="hero-league">Premier League (Top 5)</span>
+          <span class="badge-pill badge-blue" id="hero-tier">Global Superstar</span>
+          <span class="badge-pill badge-purple" id="hero-source">⚡ Live Web Sync Active</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Valuation Cards Grid -->
+    <div class="valuation-grid">
+      <!-- Model Prediction Card -->
+      <div class="val-card val-card-hero">
+        <div class="val-header-label">🎯 Model Fair Market Value</div>
+        <div class="val-hero-number" id="pred-val-eur">€157.23M</div>
+        <div class="val-range-text">80% Confidence Interval: <strong id="pred-ci-range">€55.76M – €443.36M</strong></div>
+        <div class="sentiment-box">
+          <div class="sentiment-label">Model Classification:</div>
+          <div class="sentiment-badge" id="model-tier-badge" style="color: var(--emerald);">Elite Asset</div>
+        </div>
+      </div>
+
+      <!-- Transfermarkt Actual Card -->
+      <div class="val-card" style="border: 1px solid rgba(56, 189, 248, 0.25);">
+        <div class="val-header-label">📊 Listed Market Value (Transfermarkt)</div>
+        <div class="val-hero-number" style="color: var(--cyber-blue); font-size: 2.8rem;" id="actual-val-eur">€200.00M</div>
+        <div class="val-range-text" id="market-align-text">Model evaluates lower (-21.4%)</div>
+        <div class="sentiment-box">
+          <div class="sentiment-label">Market Status:</div>
+          <div class="sentiment-badge" id="bargain-badge" style="color: var(--gold);">High-Hype Premium</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Radar Chart & Key Drivers -->
+    <div class="analysis-grid">
+      <!-- Radar Spider Chart -->
+      <div class="chart-card">
+        <h3>🕸️ Player Attribute Radar</h3>
+        <div class="chart-subtitle">Relative percentile rank across 6 core valuation dimensions</div>
+        <div class="radar-wrapper">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Key Catalysts & Valuation Drivers -->
+      <div class="chart-card">
+        <h3>🧠 Key Valuation Drivers</h3>
+        <div class="chart-subtitle">Direct institutional & productivity factors impacting market value</div>
+        <ul class="driver-pill-list" id="driver-pill-list">
+          <!-- Filled by JS -->
+        </ul>
+      </div>
+    </div>
+
+    <!-- Comprehensive Statistics Matrix -->
+    <div class="stats-card">
+      <div class="stats-header-wrap">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 4px;">📈 Verified Performance Statistics</h3>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Career totals & recent 2-season performance extracted from Transfermarkt database</div>
+      </div>
+
+      <div class="stats-grid-inner" id="stats-grid-container">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- What-If Scenario Sandbox -->
+    <div class="whatif-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h3 style="font-size: 1.3rem; font-weight: 800; color: #fff;">🔬 Interactive What-If Scenario Sandbox</h3>
+          <div style="font-size: 0.88rem; color: var(--text-muted); margin-top: 4px;">
+            Simulate future performance, transfers to elite leagues, or contract renewals to recalculate market value instantly.
+          </div>
+        </div>
+        <div class="badge-pill badge-blue">Live Model Sandbox</div>
+      </div>
+
+      <div class="whatif-controls-grid" id="whatif-controls">
+        <!-- Injected by JS -->
+      </div>
+
+      <div class="whatif-output-banner">
+        <div>
+          <div style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700;">
+            Simulated Valuation:
+          </div>
+          <div style="display: flex; align-items: baseline; margin-top: 4px;">
+            <div class="wf-out-val" id="wf-output-val">€157.23M</div>
+            <div class="delta-pill delta-up" id="wf-delta-pill">+0.0%</div>
+          </div>
+        </div>
+        <button class="btn-recalc" onclick="runWhatIfSimulation()">⚡ Recalculate Value</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let currentSelectedPlayerId = null;
+let currentPlayerData = null;
+let currentRadarChart = null;
+let ddItems = [];
+let ddHighlightedIdx = -1;
+let debounceTimeout = null;
+
+const searchInput = document.getElementById('search-input');
+const dropdown = document.getElementById('dropdown');
+const loadingBox = document.getElementById('loading-box');
+const playerView = document.getElementById('player-view');
+
+// ── Search & Autocomplete ──
+searchInput.addEventListener('input', function() {
+  const q = this.value.trim();
+  clearTimeout(debounceTimeout);
+  ddHighlightedIdx = -1;
+  if (q.length < 2) {
+    closeDropdown();
+    return;
+  }
+  debounceTimeout = setTimeout(() => executeSearch(q), 120);
+});
+
+searchInput.addEventListener('keydown', function(e) {
+  if (!dropdown.classList.contains('open')) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    ddHighlightedIdx = Math.min(ddHighlightedIdx + 1, ddItems.length - 1);
+    renderHighlight();
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    ddHighlightedIdx = Math.max(ddHighlightedIdx - 1, 0);
+    renderHighlight();
+  } else if (e.key === 'Enter' && ddHighlightedIdx >= 0 && ddHighlightedIdx < ddItems.length) {
+    e.preventDefault();
+    pickPlayer(ddItems[ddHighlightedIdx]);
+  } else if (e.key === 'Escape') {
+    closeDropdown();
+  }
+});
+
+document.addEventListener('click', function(e) {
+  if (!document.getElementById('search-box').contains(e.target) && !dropdown.contains(e.target)) {
+    closeDropdown();
+  }
+});
+
+async function executeSearch(query) {
+  try {
+    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=8`);
+    const data = await res.json();
+    ddItems = data.results || [];
+    renderDropdownItems(ddItems, query);
+  } catch(err) {
+    console.error('Search error:', err);
+  }
+}
+
+function renderDropdownItems(items, query) {
+  if (items.length === 0) {
+    dropdown.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-dim);">No professional players matching "${escapeHtml(query)}"</div>`;
+    dropdown.classList.add('open');
+    return;
+  }
+
+  const normQ = normalize(query);
+  let html = '';
+  items.forEach((p, idx) => {
+    const nameHl = highlightSubstring(p.name, normQ);
+    const club = p.current_club_name || 'Club Unknown';
+    const pos = p.sub_position || p.position || '';
+    const age = p.age ? `${p.age} yrs` : '';
+    const meta = [pos, club, age].filter(Boolean).join(' • ');
+    const mv = formatEUR(p.market_value_in_eur);
+    const imgUrl = p.image_url || '';
+
+    html += `
+      <div class="dd-row" data-idx="${idx}" onclick="pickPlayer(ddItems[${idx}])">
+        ${imgUrl ? `<img class="dd-thumb" src="${imgUrl}" onerror="this.outerHTML='<div class=\\'dd-initials\\'>${getInitials(p.name)}</div>'">` : `<div class="dd-initials">${getInitials(p.name)}</div>`}
+        <div class="dd-info">
+          <div class="dd-name">${nameHl}</div>
+          <div class="dd-meta">${escapeHtml(meta)}</div>
+        </div>
+        <div class="dd-value">${mv}</div>
+      </div>
+    `;
+  });
+
+  dropdown.innerHTML = html;
+  dropdown.classList.add('open');
+}
+
+function highlightSubstring(name, normQuery) {
+  const normName = normalize(name);
+  const idx = normName.indexOf(normQuery);
+  if (idx >= 0) {
+    const pre = escapeHtml(name.substring(0, idx));
+    const mid = escapeHtml(name.substring(idx, idx + normQuery.length));
+    const post = escapeHtml(name.substring(idx + normQuery.length));
+    return `${pre}<span class="hl">${mid}</span>${post}`;
+  }
+  return escapeHtml(name);
+}
+
+function renderHighlight() {
+  document.querySelectorAll('.dd-row').forEach((el, idx) => {
+    el.classList.toggle('active', idx === ddHighlightedIdx);
+  });
+}
+
+function closeDropdown() {
+  dropdown.classList.remove('open');
+  dropdown.innerHTML = '';
+  ddHighlightedIdx = -1;
+}
+
+function normalize(s) {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+function getInitials(name) {
+  const p = name.split(/\s+/);
+  if (p.length >= 2) return (p[0][0] + p[p.length - 1][0]).toUpperCase();
+  return name.substring(0, 2).toUpperCase();
+}
+
+function formatEUR(val) {
+  if (val == null || val === 0) return '—';
+  if (val >= 1e6) return '€' + (val / 1e6).toFixed(2) + 'M';
+  if (val >= 1e3) return '€' + (val / 1e3).toFixed(0) + 'K';
+  return '€' + Math.round(val);
+}
+
+function handleImgError(img) {
+  img.style.display = 'none';
+  const fb = document.getElementById('player-fallback');
+  if (fb) {
+    fb.style.display = 'flex';
+    fb.textContent = getInitials(document.getElementById('hero-name').textContent);
+  }
+}
+
+// ── Select Player & Predict ──
+async function pickPlayer(player) {
+  closeDropdown();
+  searchInput.value = player.name;
+  currentSelectedPlayerId = player.player_id;
+
+  playerView.classList.remove('visible');
+  loadingBox.classList.add('visible');
+
+  try {
+    const res = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_id: player.player_id })
+    });
+    const data = await res.json();
+    currentPlayerData = data;
+    renderFullDashboard(data);
+  } catch(err) {
+    console.error('Prediction failed:', err);
+    loadingBox.classList.remove('visible');
+  }
+}
+
+function renderFullDashboard(data) {
+  loadingBox.classList.remove('visible');
+  playerView.classList.add('visible');
+
+  const stats = data.player_stats || {};
+  const name = data.player_name || 'Unknown';
+
+  // 1. Banner
+  document.getElementById('hero-name').textContent = name;
+  document.getElementById('hero-club').textContent = '🏟 ' + (stats.current_club || 'Unknown Club');
+  document.getElementById('hero-pos').textContent = '⚽ ' + (stats.sub_position || stats.position || 'Unknown');
+  document.getElementById('hero-age').textContent = '📅 Age ' + (stats.age ? Math.round(stats.age) : '—');
+  document.getElementById('hero-nat').textContent = '🌍 ' + (stats.nationality || '');
+  document.getElementById('pos-floating').textContent = (stats.sub_position || stats.position || 'CF').split('-')[0].substring(0, 3).toUpperCase();
+
+  // Face Image
+  const imgEl = document.getElementById('player-img');
+  const fbEl = document.getElementById('player-fallback');
+  if (stats.image_url) {
+    imgEl.style.display = 'block';
+    fbEl.style.display = 'none';
+    imgEl.src = stats.image_url;
+  } else {
+    imgEl.style.display = 'none';
+    fbEl.style.display = 'flex';
+    fbEl.textContent = getInitials(name);
+  }
+
+  // League badge
+  const leagueMap = { GB1: 'Premier League (England)', ES1: 'La Liga (Spain)', IT1: 'Serie A (Italy)', L1: 'Bundesliga (Germany)', FR1: 'Ligue 1 (France)', PO1: 'Liga Portugal', NL1: 'Eredivisie', BE1: 'Pro League' };
+  document.getElementById('hero-league').textContent = leagueMap[stats.league_id] || (stats.league_id ? stats.league_id + ' Division' : 'First Division');
+  document.getElementById('hero-tier').textContent = data.market_tier || 'First Team Player';
+
+  // 2. Valuation Cards
+  document.getElementById('pred-val-eur').textContent = data.formatted_market_value || '—';
+  document.getElementById('pred-ci-range').textContent = data.formatted_confidence_range || '—';
+  document.getElementById('model-tier-badge').textContent = data.market_tier || '';
+
+  const actualEUR = stats.actual_market_value_eur || 0;
+  document.getElementById('actual-val-eur').textContent = formatEUR(actualEUR);
+  document.getElementById('market-align-text').textContent = data.alignment || 'Aligned with model';
+
+  const ratio = data.prediction_to_actual_ratio || 1;
+  const bargainBadge = document.getElementById('bargain-badge');
+  if (ratio > 1.25) {
+    bargainBadge.textContent = '🌟 Model Evaluates Higher (Bargain)';
+    bargainBadge.style.color = 'var(--emerald)';
+  } else if (ratio < 0.8) {
+    bargainBadge.textContent = '🔥 High-Hype / Speculative Premium';
+    bargainBadge.style.color = 'var(--coral)';
+  } else {
+    bargainBadge.textContent = '⚖️ Fair Market Valuation';
+    bargainBadge.style.color = 'var(--gold)';
+  }
+
+  // 3. Key Drivers
+  const driverContainer = document.getElementById('driver-pill-list');
+  const drivers = data.valuation_drivers || [];
+  driverContainer.innerHTML = drivers.map(d => `<li><span style="color:var(--emerald);">✔</span> ${escapeHtml(d)}</li>`).join('');
+
+  // 4. Statistics Matrix
+  renderStatsGrid(stats);
+
+  // 5. Radar Spider Chart
+  renderRadarChart(stats, data);
+
+  // 6. Setup What-If Controls
+  setupWhatIfControls(stats, data);
+}
+
+function renderStatsGrid(stats) {
+  const container = document.getElementById('stats-grid-container');
+  const items = [
+    { v: stats.career_goals ?? 0, l: 'Career Goals' },
+    { v: stats.career_assists ?? 0, l: 'Career Assists' },
+    { v: stats.career_appearances ?? 0, l: 'Career Appearances' },
+    { v: stats.career_minutes ? Math.round(stats.career_minutes / 90) : 0, l: 'Career 90s Logged' },
+    { v: stats.recent_goals ?? 0, l: 'Recent Season Goals' },
+    { v: stats.recent_assists ?? 0, l: 'Recent Season Assists' },
+    { v: stats.recent_appearances ?? 0, l: 'Recent Appearances' },
+    { v: stats.recent_minutes ? Math.round(stats.recent_minutes) : 0, l: 'Recent Minutes' },
+    { v: stats.international_caps ?? 0, l: 'Senior Caps' },
+    { v: stats.international_goals ?? 0, l: 'Senior Intl Goals' },
+    { v: stats.continental_appearances ?? 0, l: 'Champions League Apps' },
+    { v: stats.height_cm ? Math.round(stats.height_cm) + ' cm' : '—', l: 'Height' }
+  ];
+
+  container.innerHTML = items.map(it => `
+    <div class="stat-box">
+      <div class="stat-box-val">${it.v}</div>
+      <div class="stat-box-lbl">${it.l}</div>
+    </div>
+  `).join('');
+}
+
+// ── Radar Chart (Chart.js) ──
+function renderRadarChart(stats, data) {
+  const canvas = document.getElementById('radarChart');
+  if (currentRadarChart) {
+    currentRadarChart.destroy();
+  }
+
+  // Calculate 0-100 dimension scores
+  const carMins = stats.career_minutes || 0;
+  const recMins = stats.recent_minutes || 1;
+  const recGoals = stats.recent_goals || 0;
+  const recAssists = stats.recent_assists || 0;
+  const age = stats.age || 25;
+  const caps = stats.international_caps || 0;
+  const cont = stats.continental_appearances || 0;
+  const isTop5 = ['GB1', 'ES1', 'IT1', 'L1', 'FR1'].includes(stats.league_id);
+
+  const scoring = Math.min(Math.round(((recGoals * 90) / recMins) * 110), 100);
+  const playmaking = Math.min(Math.round(((recAssists * 90) / recMins) * 140), 100);
+  const stamina = Math.min(Math.round((recMins / 3200) * 100), 100);
+  
+  let youthScore = 50;
+  if (age <= 21) youthScore = 98;
+  else if (age <= 24) youthScore = 88;
+  else if (age <= 27) youthScore = 78;
+  else if (age <= 30) youthScore = 60;
+  else youthScore = Math.max(25, 60 - (age - 30) * 8);
+
+  const pedigree = Math.min(Math.round((caps * 2.0) + (cont * 2.5)), 100);
+  const clubPower = isTop5 ? 90 : 55;
+
+  const labels = ['Direct Scoring', 'Playmaking', 'Minutes & Availability', 'Age & Youth Upside', 'Intl & UCL Pedigree', 'Club Caliber'];
+  const values = [scoring, playmaking, stamina, youthScore, pedigree, clubPower];
+
+  currentRadarChart = new Chart(canvas, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: data.player_name || 'Player',
+          data: values,
+          backgroundColor: 'rgba(0, 240, 144, 0.22)',
+          borderColor: '#00f090',
+          borderWidth: 2.5,
+          pointBackgroundColor: '#00f090',
+          pointBorderColor: '#fff',
+          pointHoverRadius: 6
+        },
+        {
+          label: 'Division 1 Average',
+          data: [42, 38, 55, 58, 30, 60],
+          backgroundColor: 'rgba(56, 189, 248, 0.08)',
+          borderColor: 'rgba(56, 189, 248, 0.45)',
+          borderWidth: 1.5,
+          borderDash: [4, 4],
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        r: {
+          min: 0,
+          max: 100,
+          ticks: { display: false, stepSize: 20 },
+          grid: { color: 'rgba(255, 255, 255, 0.08)' },
+          angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+          pointLabels: {
+            color: '#94a3b8',
+            font: { size: 10.5, family: 'Plus Jakarta Sans', weight: '600' }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          labels: { color: '#cbd5e1', font: { size: 11, family: 'Plus Jakarta Sans' } }
+        }
+      }
+    }
+  });
+}
+
+// ── What-If Sandbox Logic ──
+let wfState = {};
+
+function setupWhatIfControls(stats, predData) {
+  wfState = {
+    recent_goals: stats.recent_goals || 0,
+    recent_assists: stats.recent_assists || 0,
+    recent_minutes: stats.recent_minutes || 0,
+    international_caps: stats.international_caps || 0,
+    continental_appearances: stats.continental_appearances || 0,
+    league: stats.league_id || 'GB1'
+  };
+
+  const container = document.getElementById('whatif-controls');
+  container.innerHTML = `
+    <div class="wf-slider-item">
+      <div class="wf-slider-header">
+        <span>Goals (Last 2 Seasons)</span>
+        <span class="wf-val-tag" id="wf-lbl-g">${wfState.recent_goals}</span>
+      </div>
+      <input type="range" class="wf-range" min="0" max="60" value="${wfState.recent_goals}" oninput="updateWfField('recent_goals', this.value, 'wf-lbl-g')">
+    </div>
+
+    <div class="wf-slider-item">
+      <div class="wf-slider-header">
+        <span>Assists (Last 2 Seasons)</span>
+        <span class="wf-val-tag" id="wf-lbl-a">${wfState.recent_assists}</span>
+      </div>
+      <input type="range" class="wf-range" min="0" max="40" value="${wfState.recent_assists}" oninput="updateWfField('recent_assists', this.value, 'wf-lbl-a')">
+    </div>
+
+    <div class="wf-slider-item">
+      <div class="wf-slider-header">
+        <span>Minutes Played</span>
+        <span class="wf-val-tag" id="wf-lbl-m">${wfState.recent_minutes.toLocaleString()} min</span>
+      </div>
+      <input type="range" class="wf-range" min="0" max="5000" step="100" value="${wfState.recent_minutes}" oninput="updateWfField('recent_minutes', this.value, 'wf-lbl-m', ' min')">
+    </div>
+
+    <div class="wf-slider-item">
+      <div class="wf-slider-header">
+        <span>International Caps</span>
+        <span class="wf-val-tag" id="wf-lbl-c">${wfState.international_caps}</span>
+      </div>
+      <input type="range" class="wf-range" min="0" max="100" value="${wfState.international_caps}" oninput="updateWfField('international_caps', this.value, 'wf-lbl-c')">
+    </div>
+
+    <div class="wf-slider-item">
+      <div class="wf-slider-header">
+        <span>UCL Appearances</span>
+        <span class="wf-val-tag" id="wf-lbl-ucl">${wfState.continental_appearances}</span>
+      </div>
+      <input type="range" class="wf-range" min="0" max="60" value="${wfState.continental_appearances}" oninput="updateWfField('continental_appearances', this.value, 'wf-lbl-ucl')">
+    </div>
+
+    <div class="wf-slider-item">
+      <div class="wf-slider-header"><span>League Caliber</span></div>
+      <select class="wf-select-custom" onchange="wfState.league = this.value">
+        <option value="GB1" ${wfState.league==='GB1'?'selected':''}>Premier League (England)</option>
+        <option value="ES1" ${wfState.league==='ES1'?'selected':''}>La Liga (Spain)</option>
+        <option value="IT1" ${wfState.league==='IT1'?'selected':''}>Serie A (Italy)</option>
+        <option value="L1" ${wfState.league==='L1'?'selected':''}>Bundesliga (Germany)</option>
+        <option value="FR1" ${wfState.league==='FR1'?'selected':''}>Ligue 1 (France)</option>
+        <option value="PO1" ${!['GB1','ES1','IT1','L1','FR1'].includes(wfState.league)?'selected':''}>Other Tier 2 League</option>
+      </select>
+    </div>
+  `;
+
+  document.getElementById('wf-output-val').textContent = predData.formatted_market_value || '—';
+  const delta = document.getElementById('wf-delta-pill');
+  delta.textContent = 'Baseline Value';
+  delta.className = 'delta-pill delta-up';
+}
+
+function updateWfField(field, val, labelId, suffix = '') {
+  wfState[field] = parseInt(val);
+  document.getElementById(labelId).textContent = parseInt(val).toLocaleString() + suffix;
+}
+
+async function runWhatIfSimulation() {
+  if (!currentSelectedPlayerId) return;
+
+  const overrides = {
+    recent_goals: wfState.recent_goals,
+    recent_assists: wfState.recent_assists,
+    recent_minutes: wfState.recent_minutes,
+    international_caps: wfState.international_caps,
+    continental_appearances: wfState.continental_appearances,
+    current_club_domestic_competition_id: wfState.league
+  };
+
+  try {
+    const res = await fetch('/api/whatif', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_id: currentSelectedPlayerId, overrides })
+    });
+    const sim = await res.json();
+
+    const baseline = currentPlayerData?.predicted_market_value_eur || 1;
+    const simVal = sim.predicted_market_value_eur || 0;
+    const diffPct = ((simVal - baseline) / baseline) * 100;
+
+    document.getElementById('wf-output-val').textContent = sim.formatted_market_value || '—';
+    const pill = document.getElementById('wf-delta-pill');
+    if (Math.abs(diffPct) < 0.3) {
+      pill.textContent = 'No change';
+      pill.className = 'delta-pill delta-up';
+    } else if (diffPct > 0) {
+      pill.textContent = `▲ +${diffPct.toFixed(1)}%`;
+      pill.className = 'delta-pill delta-up';
+    } else {
+      pill.textContent = `▼ ${diffPct.toFixed(1)}%`;
+      pill.className = 'delta-pill delta-down';
+    }
+  } catch(err) {
+    console.error('Simulation error:', err);
+  }
+}
+</script>
+</body>
+</html>

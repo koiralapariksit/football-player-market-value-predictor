@@ -1,0 +1,228 @@
+{
+  "timestamp": "2026-11-06 11:35:12",
+  "best_model": "HistGradientBoosting Regressor",
+  "dataset_records": 26182,
+  "train_records": 20945,
+  "test_records": 5237,
+  "numeric_features": [
+    "age",
+    "age_squared",
+    "peak_age_diff",
+    "is_young_talent",
+    "is_prime_age",
+    "is_veteran",
+    "experience_years",
+    "height_in_cm",
+    "is_left_footed",
+    "contract_years_left",
+    "is_contract_expiring",
+    "career_appearances",
+    "career_minutes",
+    "career_goals",
+    "career_assists",
+    "career_yellow_cards",
+    "career_red_cards",
+    "career_goals_per_90",
+    "career_assists_per_90",
+    "career_ga_per_90",
+    "career_cards_per_90",
+    "minutes_per_match",
+    "recent_appearances",
+    "recent_minutes",
+    "recent_goals",
+    "recent_assists",
+    "recent_goals_per_90",
+    "recent_assists_per_90",
+    "recent_ga_per_90",
+    "recent_activity_ratio",
+    "continental_appearances",
+    "has_continental_exp",
+    "international_caps",
+    "international_goals",
+    "has_intl_caps",
+    "intl_goals_per_cap",
+    "is_top_5_league",
+    "is_tier_2_league",
+    "competition_tier_level",
+    "club_squad_size",
+    "club_avg_age",
+    "club_foreigners_pct",
+    "club_national_players"
+  ],
+  "categorical_features": [
+    "position",
+    "sub_position"
+  ],
+  "benchmark_results": {
+    "Ridge Baseline": {
+      "log_r2": 0.5936552864080931,
+      "log_mae": 0.7714277774613039,
+      "log_rmse": 0.9891737543404282,
+      "raw_r2": 0.5966660155857351,
+      "raw_mae_eur": 1395180.8713596342,
+      "raw_medae_eur": 249449.94859517028,
+      "raw_rmse_eur": 5112503.613693888,
+      "mdape_percent": 57.255962961612894,
+      "within_20_pct": 17.109031888485774,
+      "within_50_pct": 44.510215772388776,
+      "cv_log_r2_mean": 0.5910222090302744,
+      "cv_log_r2_std": 0.010549035517616748
+    },
+    "Random Forest Regressor": {
+      "log_r2": 0.6929274235216645,
+      "log_mae": 0.6592254798019612,
+      "log_rmse": 0.8598957335465076,
+      "raw_r2": 0.6942906582001027,
+      "raw_mae_eur": 1186982.8062470704,
+      "raw_medae_eur": 206897.25594502495,
+      "raw_rmse_eur": 4450979.301374798,
+      "mdape_percent": 49.213046196226934,
+      "within_20_pct": 21.15715104067214,
+      "within_50_pct": 50.67786900897461,
+      "cv_log_r2_mean": 0.6828739707693983,
+      "cv_log_r2_std": 0.009638485522005144
+    },
+    "HistGradientBoosting Regressor": {
+      "log_r2": 0.7275861526735405,
+      "log_mae": 0.616508587869404,
+      "log_rmse": 0.8099157930261554,
+      "raw_r2": 0.8004243311237548,
+      "raw_mae_eur": 1056359.1072706666,
+      "raw_medae_eur": 192219.04267284984,
+      "raw_rmse_eur": 3596292.5753528923,
+      "mdape_percent": 45.282447030738496,
+      "within_20_pct": 23.754057666603018,
+      "within_50_pct": 54.21042581630705,
+      "cv_log_r2_mean": 0.7160656848057763,
+      "cv_log_r2_std": 0.01250261203552648
+    }
+  },
+  "feature_importances": [
+    {
+      "feature": "age",
+      "importance": 0.14849747511193562,
+      "std": 0.0052657194637525375
+    },
+    {
+      "feature": "contract_years_left",
+      "importance": 0.08773537385086608,
+      "std": 0.007254281340082101
+    },
+    {
+      "feature": "club_national_players",
+      "importance": 0.07123790914242312,
+      "std": 0.003953810928975959
+    },
+    {
+      "feature": "peak_age_diff",
+      "importance": 0.07103709041265241,
+      "std": 0.0034257645850912246
+    },
+    {
+      "feature": "recent_minutes",
+      "importance": 0.067870380895236,
+      "std": 0.006188579070039786
+    },
+    {
+      "feature": "international_caps",
+      "importance": 0.0455744591893124,
+      "std": 0.006380312450863629
+    },
+    {
+      "feature": "club_avg_age",
+      "importance": 0.03449147838987789,
+      "std": 0.0035687151305731322
+    },
+    {
+      "feature": "club_foreigners_pct",
+      "importance": 0.0318263993677919,
+      "std": 0.002173268366161862
+    },
+    {
+      "feature": "is_top_5_league",
+      "importance": 0.03178297263525272,
+      "std": 0.0011398146183150412
+    },
+    {
+      "feature": "recent_appearances",
+      "importance": 0.027046231232807316,
+      "std": 0.0036142424077402683
+    },
+    {
+      "feature": "continental_appearances",
+      "importance": 0.02481636397841198,
+      "std": 0.004487695222977157
+    },
+    {
+      "feature": "minutes_per_match",
+      "importance": 0.02062411794031065,
+      "std": 0.0021449921769813233
+    },
+    {
+      "feature": "position",
+      "importance": 0.020246515511928954,
+      "std": 0.0014822981217690726
+    },
+    {
+      "feature": "career_appearances",
+      "importance": 0.01830449621667507,
+      "std": 0.0030330407328982697
+    },
+    {
+      "feature": "competition_tier_level",
+      "importance": 0.01630922789419289,
+      "std": 0.001400633424090585
+    },
+    {
+      "feature": "is_tier_2_league",
+      "importance": 0.015197025200691282,
+      "std": 0.0018525063728199607
+    },
+    {
+      "feature": "experience_years",
+      "importance": 0.014194753589965558,
+      "std": 0.0021865057754107044
+    },
+    {
+      "feature": "club_squad_size",
+      "importance": 0.010380714429181249,
+      "std": 0.0016594140599250494
+    },
+    {
+      "feature": "career_minutes",
+      "importance": 0.008528866157838521,
+      "std": 0.0025339930842284615
+    },
+    {
+      "feature": "recent_goals",
+      "importance": 0.006357108801960032,
+      "std": 0.0012489677576594477
+    },
+    {
+      "feature": "height_in_cm",
+      "importance": 0.005842117476573682,
+      "std": 0.0006707065179207287
+    },
+    {
+      "feature": "recent_activity_ratio",
+      "importance": 0.003127460162200069,
+      "std": 0.0009797108362985404
+    },
+    {
+      "feature": "career_ga_per_90",
+      "importance": 0.001580985766031362,
+      "std": 0.0013477603168547338
+    },
+    {
+      "feature": "recent_assists",
+      "importance": 0.001124164972602104,
+      "std": 0.0006442499759655479
+    },
+    {
+      "feature": "career_yellow_cards",
+      "importance": 0.0006250343060358432,
+      "std": 0.0008797677157034909
+    }
+  ],
+  "training_time_seconds": 29.92
+}

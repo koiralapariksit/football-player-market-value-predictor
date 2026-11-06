@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Scratch & Caches
+.pytest_cache/
+data/cache/
+
+# Raw bulk data (downloadable automatically via src/data_loader.py)
+data/raw/
+
+# Large redundant intermediate model weights
+models/ensemble_model.joblib
+models/super_ensemble_model.joblib
+
+# Virtual environments
+.venv/
+venv/
+ENV/

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-11-06 12:13:28",
+  "model_type": "Super Ensemble (LightGBM 40% + XGBoost 35% + HistGradientBoosting 25%)",
+  "dataset_records": 26182,
+  "train_records": 20945,
+  "test_records": 5237,
+  "metrics": {
+    "log_r2": 0.7683542171440698,
+    "log_mae": 0.5635223427044127,
+    "log_rmse": 0.7468570360811189,
+    "raw_r2": 0.7919425729732853,
+    "raw_mae_eur": 1015504.1758768369,
+    "raw_medae_eur": 178813.24004085734,
+    "mdape_percent": 41.24564079003986,
+    "within_20_pct": 24.55604353637579,
+    "within_50_pct": 59.06053083826618
+  },
+  "training_time_seconds": 18.24
+}
