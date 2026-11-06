@@ -379,7 +379,7 @@ def extract_features(df: pd.DataFrame, is_training: bool = True, prestige_map: D
 
     # Position Mastery & Dominance
     X["striker_clinical_ratio"] = is_str * (X["recent_goals"] / np.maximum(X["recent_appearances"], 1.0))
-    X["midfield_progression_index"] = is_md * (X["recent_assists_per_90"] + 0.5 * (X["recent_minutes"] / 90.0))
+    X["midfield_progression_index"] = is_md * (X["recent_assists_per_90"] + 0.6 * (X["recent_minutes"] / 90.0))
     X["cb_clean_sheet_leverage"] = is_c_b * (X["recent_minutes"] / 90.0) * X["is_top_5_league"]
 
     # Ensure all numeric columns are clean float without NaN
