@@ -121,6 +121,8 @@ class PlayerSearchIndex:
                     p[k] = None
 
         # Pre-compute normalised names (parallel list, same order)
+        # Token index for ultra-fast multi-token matches
+        self._token_index: Dict[str, List[int]] = {}
         self._norm_names: List[str] = [
             _normalize(str(p.get("name", ""))) for p in self.players
         ]
