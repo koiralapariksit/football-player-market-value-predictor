@@ -142,5 +142,13 @@ class TestFootballMarketValuePipeline(unittest.TestCase):
         self.assertGreater(res_prodigy["predicted_market_value_eur"], res_gk["predicted_market_value_eur"])
 
 
+
+    def test_fifa_ovr_bounds(self):
+        """Assert FIFA OVR proxy ratings stay within official EA FC scale (48-94)."""
+        from src.predict import compute_fifa_ovr
+        self.assertGreaterEqual(compute_fifa_ovr(200_000_000, 24, True), 88)
+        self.assertLessEqual(compute_fifa_ovr(500_000, 32, False), 75)
+        self.assertGreaterEqual(compute_fifa_ovr(100_000, 20, False), 48)
+
 if __name__ == "__main__":
     unittest.main()
