@@ -126,6 +126,8 @@ def api_predict():
 
         # Run prediction with dataset stats
         result = predictor.predict_player_profile(player_data)
+        from src.predict import compute_fifa_ovr
+        result["fifa_ovr"] = compute_fifa_ovr(result["predicted_market_value_eur"], float(player_data.get("age", 25) or 25), bool(player_data.get("current_club_domestic_competition_id") in ["GB1", "ES1", "IT1", "L1", "FR1"]))
 
         actual_mv = float(player_data.get("market_value_in_eur", 0))
         result["actual_market_value_eur"] = actual_mv
