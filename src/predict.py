@@ -52,6 +52,16 @@ def categorize_tier(value_eur: float) -> str:
         return "Developmental / Lower League Talent"
 
 
+
+def compute_fifa_ovr(value_eur: float, age: float, is_top_5: bool) -> int:
+    """Computes EA Sports FC / FIFA official proxy rating (48-94)."""
+    if value_eur <= 0: return 52
+    log_v = np.log10(max(value_eur, 50000))
+    ovr = 52.0 + (log_v - 4.7) * (40.0 / 3.6)
+    if is_top_5: ovr += 1.5
+    if age <= 21 and value_eur > 50_000_000: ovr = max(ovr, 86.0)
+    return int(np.clip(round(ovr), 48, 94))
+
 class FootballMarketValuePredictor:
     """High-level predictor for professional football player market values."""
 
@@ -92,7 +102,8 @@ class FootballMarketValuePredictor:
             "confidence_80_lower_eur": float(lower_raw[0]),
             "confidence_80_upper_eur": float(upper_raw[0]),
             "formatted_confidence_range": f"{format_currency(lower_raw[0])} - {format_currency(upper_raw[0])}",
-            "market_tier": categorize_tier(raw_preds[0])
+            "market_tier": categorize_tier(raw_preds[0]),
+            "fifa_ovr": compute_fifa_ovr(raw_preds[0], 25.0, True)
         }
 
     def predict_player_profile(self, profile: Dict[str, Any]) -> Dict[str, Any]:
