@@ -1,18 +1,31 @@
 {
-  "release": "v2.0.0-fifa-official-2026",
+  "release": "v2.1.0-fifa-max-power-2026",
   "calibration_date": "2026-11-06",
   "season": "2026/2027",
-  "benchmark_metrics": {
-    "raw_r2": 0.8296156594242179,
-    "log_r2": 0.7716919610586778,
-    "mae": 942606.1212089404,
-    "mdape": 40.41441855785271
+  "training_duration_seconds": 26.49,
+  "total_players": 26182,
+  "test_players": 5237,
+  "metrics": {
+    "raw_r2": 0.8211911671339183,
+    "log_r2": 0.7739675034029613,
+    "raw_mae_eur": 941566.1622542121,
+    "raw_medae_eur": 176910.03586043563,
+    "raw_rmse_eur": 3404048.2233623583,
+    "mdape_percent": 40.174251014065185,
+    "within_20_pct": 25.319839602826043,
+    "within_50_pct": 59.95799121634524
   },
   "super_ensemble": {
-    "lightgbm_weight": 0.42,
-    "xgboost_weight": 0.38,
-    "hist_gbm_weight": 0.2
+    "lightgbm_estimators": 700,
+    "xgboost_estimators": 650,
+    "hist_gbm_iterations": 650,
+    "weights": {
+      "lgb": 0.42,
+      "xgb": 0.38,
+      "hgb": 0.2
+    }
   },
-  "features_total": 70,
-  "indexed_players": 26182
+  "features_count": 71,
+  "gpu_hardware": "NVIDIA GeForce MX350, 2048 MiB",
+  "cpu_parallel_cores": 8
 }
